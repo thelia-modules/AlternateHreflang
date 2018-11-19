@@ -64,9 +64,7 @@ class AlternateHreflangListener implements EventSubscriberInterface
             $baseUrl = ConfigQuery::getConfiguredShopUrl();
         }
 
-        $url = $baseUrl . $uri;
-
-        $url = str_replace('//', '/', $url);
+        $url = trim($baseUrl, '/') . '/' . trim($uri, '/');
 
         $event->setUrl($url);
     }
