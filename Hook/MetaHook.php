@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
 use Thelia\Core\HttpFoundation\Request;
-use Thelia\Model\ConfigQuery;
 use Thelia\Model\LangQuery;
 
 class MetaHook extends BaseHook
@@ -45,39 +44,15 @@ class MetaHook extends BaseHook
             ->filterById($currentLang->getId(), Criteria::NOT_EQUAL)
             ->find();
 
-        $view = $request->attributes->get('_view');
+        foreach ($langs as $lang) {
+            $event = new AlternateHreflangEvent($lang, $request);
 
-        $multiDomainActivated = ConfigQuery::isMultiDomainActivated();
+            $this->eventDispatcher->dispatch(AlternateHreflangEvent::BASE_EVENT_NAME, $event);
 
-        if (!empty($view)) {
-            foreach ($langs as $lang) {
-                if ($multiDomainActivated) {
-                    if (empty($lang->getUrl())) {
-                        continue;
-                    }
+            $hreflang = strtolower(str_replace('_', '-', $lang->getLocale()));
 
-                    $baseUrl = $lang->getUrl();
-                } else {
-                    $baseUrl = ConfigQuery::getConfiguredShopUrl();
-                }
-
-                $event = new AlternateHreflangEvent($lang, $request);
-
-                $this->eventDispatcher->dispatch(AlternateHreflangEvent::BASE_EVENT_NAME, $event);
-
-                $hreflang = strtolower(str_replace('_', '-', $lang->getLocale()));
-
-                if (!empty($event->getUri()) || $event->isForceEmptyUri()) {
-                    if (!empty($event->getUri())) {
-                        $url = $baseUrl . $event->getUri();
-                    } else {
-                        $url = $baseUrl;
-                    }
-
-                    $url = str_replace('//', '/', $url);
-
-                    $hookRender->add('<link rel="alternate" hreflang="' . $hreflang . '" href="' . $url . '" />');
-                }
+            if (!empty($event->getUrl())) {
+                $hookRender->add('<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />');
             }
         }
     }

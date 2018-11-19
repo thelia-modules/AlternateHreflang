@@ -14,7 +14,7 @@ This module generates a alternateHreflang URL for every page of your shop. Once 
 Add it in your main thelia composer.json file
 
 ```
-composer require thelia/alternate-hreflang-module:~0.1.0
+composer require thelia/alternate-hreflang-module:~0.2.0
 ```
 
 ## Usage

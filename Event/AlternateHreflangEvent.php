@@ -17,10 +17,7 @@ class AlternateHreflangEvent extends Event
     protected $request;
 
     /** @var string */
-    protected $uri;
-
-    /** @var bool */
-    protected $forceEmptyUri = false;
+    protected $url;
 
     public function __construct(Lang $lang, Request $request)
     {
@@ -47,36 +44,18 @@ class AlternateHreflangEvent extends Event
     /**
      * @return string
      */
-    public function getUri()
+    public function getUrl()
     {
-        return $this->uri;
+        return $this->url;
     }
 
     /**
-     * @param string $uri
+     * @param string $url
      * @return AlternateHreflangEvent
      */
-    public function setUri($uri)
+    public function setUrl($url)
     {
-        $this->uri = $uri;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isForceEmptyUri()
-    {
-        return $this->forceEmptyUri;
-    }
-
-    /**
-     * @param bool $forceEmptyUri
-     * @return AlternateHreflangEvent
-     */
-    public function setForceEmptyUri($forceEmptyUri)
-    {
-        $this->forceEmptyUri = $forceEmptyUri;
+        $this->url = $url;
         return $this;
     }
 }

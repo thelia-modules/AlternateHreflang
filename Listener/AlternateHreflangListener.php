@@ -4,6 +4,7 @@ namespace AlternateHreflang\Listener;
 
 use AlternateHreflang\Event\AlternateHreflangEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Thelia\Model\ConfigQuery;
 use Thelia\Tools\URL;
 
 class AlternateHreflangListener implements EventSubscriberInterface
@@ -25,26 +26,49 @@ class AlternateHreflangListener implements EventSubscriberInterface
     {
         $view = $event->getRequest()->attributes->get('_view');
 
+        $multiDomainActivated = ConfigQuery::isMultiDomainActivated();
+
         switch ($view) {
             case 'product':
-                $this->findUrlFromView($event, 'product', 'product_id');
+                $uri = $this->findUrlFromView($event, 'product', 'product_id');
                 break;
             case 'folder':
-                $this->findUrlFromView($event, 'folder', 'folder_id');
+                $uri = $this->findUrlFromView($event, 'folder', 'folder_id');
                 break;
             case 'content':
-                $this->findUrlFromView($event, 'content', 'content_id');
+                $uri = $this->findUrlFromView($event, 'content', 'content_id');
                 break;
             case 'category':
-                $this->findUrlFromView($event, 'category', 'category_id');
-                break;
-            case 'index':
-                $event->setForceEmptyUri(true);
+                $uri = $this->findUrlFromView($event, 'category', 'category_id');
                 break;
             default:
-                $event->setUri($event->getRequest()->getUri());
+                if (!$multiDomainActivated) {
+                    $uri = $event->getRequest()->getRequestUri();
+
+                    if (preg_match('/lang=[a-zA-Z_]{5}/', $uri)) {
+                        $uri = preg_replace('/lang=[a-zA-Z_]{5}/', 'lang=' . $event->getLang()->getLocale(), $uri);
+                    } elseif (strpos('?', $uri)) {
+                        $uri .= '&lang=' . $event->getLang()->getLocale();
+                    } else {
+                        $uri .= '?lang=' . $event->getLang()->getLocale();
+                    }
+                } else {
+                    $uri = $event->getRequest()->getRequestUri();
+                }
                 break;
         }
+
+        if ($multiDomainActivated) {
+            $baseUrl = $event->getLang()->getUrl();
+        } else {
+            $baseUrl = ConfigQuery::getConfiguredShopUrl();
+        }
+
+        $url = $baseUrl . $uri;
+
+        $url = str_replace('//', '/', $url);
+
+        $event->setUrl($url);
     }
 
     protected function findUrlFromView(AlternateHreflangEvent $event, $view, $requestAttributeKey)
@@ -55,13 +79,11 @@ class AlternateHreflangListener implements EventSubscriberInterface
             if (null !== $rewritingRetriever = URL::getInstance()->retrieve($view, $id, $event->getLang()->getLocale())) {
                 $url =  !empty($rewritingRetriever->rewrittenUrl) ? $rewritingRetriever->rewrittenUrl : $rewritingRetriever->url;
 
-                $uri = $this->generateUriFromUrl($url);
-
-                if (null !== $uri) {
-                    $event->setUri($uri);
-                }
+                return $this->generateUriFromUrl($url);
             }
         }
+
+        return null;
     }
 
     protected function generateUriFromUrl($url)
