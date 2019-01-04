@@ -6,7 +6,7 @@ This module generates a alternateHreflang URL for every page of your shop. Once 
 
 ### Manually
 
-* Copy the module into ```<thelia_root>/local/modules/``` directory and be sure that the name of the module is CanonicalUrl.
+* Copy the module into ```<thelia_root>/local/modules/``` directory and be sure that the name of the module is AlternateHreflang.
 * Activate it in your thelia administration panel
 
 ### Composer
