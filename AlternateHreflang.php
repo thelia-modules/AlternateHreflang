@@ -13,16 +13,23 @@
 namespace AlternateHreflang;
 
 use Thelia\Module\BaseModule;
+use Propel\Runtime\Connection\ConnectionInterface;
 
 class AlternateHreflang extends BaseModule
 {
     /** @var string */
     const DOMAIN_NAME = 'alternatehreflang';
 
-    /*
-     * You may now override BaseModuleInterface methods, such as:
-     * install, destroy, preActivation, postActivation, preDeactivation, postDeactivation
-     *
-     * Have fun !
-     */
+    const CONFIG_KEY_HREFLANG_FORMAT = "hreflangFormat";
+    const CONFIG_HREFLANG_FORMAT_DEFAULT_VALUE = 0; // 0 for xx-xx or 1 for xx
+
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
+    {
+        if (null === self::getConfigValue(self::CONFIG_KEY_HREFLANG_FORMAT)) {
+            self::setConfigValue(
+                self::CONFIG_KEY_HREFLANG_FORMAT,
+                self::CONFIG_HREFLANG_FORMAT_DEFAULT_VALUE
+            );
+        }
+    }
 }

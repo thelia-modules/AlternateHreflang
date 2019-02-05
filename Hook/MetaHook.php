@@ -2,6 +2,7 @@
 
 namespace AlternateHreflang\Hook;
 
+use AlternateHreflang\AlternateHreflang;
 use AlternateHreflang\Event\AlternateHreflangEvent;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
 use Thelia\Core\HttpFoundation\Request;
+use Thelia\Model\Lang;
 use Thelia\Model\LangQuery;
 
 class MetaHook extends BaseHook
@@ -37,19 +39,27 @@ class MetaHook extends BaseHook
         /** @var Request $request */
         $request = $this->requestStack->getCurrentRequest();
 
-        $currentLang = $request->getSession()->getLang();
-
         $langs = LangQuery::create()
             ->filterByVisible(true)
-            ->filterById($currentLang->getId(), Criteria::NOT_EQUAL)
+            ->orderByByDefault(Criteria::DESC)
             ->find();
 
+        /** @var Lang $lang */
         foreach ($langs as $lang) {
             $event = new AlternateHreflangEvent($lang, $request);
 
             $this->eventDispatcher->dispatch(AlternateHreflangEvent::BASE_EVENT_NAME, $event);
 
-            $hreflang = strtolower(str_replace('_', '-', $lang->getLocale()));
+            $hreflangFormat = AlternateHreflang::getConfigValue(AlternateHreflang::CONFIG_KEY_HREFLANG_FORMAT);
+            if (0 === (int) $hreflangFormat) {
+                $hreflang = strtolower(explode('_', $lang->getLocale())[0]);
+            } else {
+                $hreflang = strtolower(str_replace('_', '-', $lang->getLocale()));
+            }
+
+            if ($lang->getByDefault()) {
+                $hookRender->add('<link rel="alternate" hreflang="x-default" href="' . $event->getUrl() . '" />');
+            }
 
             if (!empty($event->getUrl())) {
                 $hookRender->add('<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />');
