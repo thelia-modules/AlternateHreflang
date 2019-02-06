@@ -39,10 +39,16 @@ class MetaHook extends BaseHook
         /** @var Request $request */
         $request = $this->requestStack->getCurrentRequest();
 
+        $currentLocale = $request->getSession()->getLang()->getLocale();
+
         $langs = LangQuery::create()
             ->filterByVisible(true)
-            ->orderByByDefault(Criteria::DESC)
             ->find();
+
+        $metas = [];
+
+        $defaultHrefLang = null;
+        $currentHrefLang = null;
 
         /** @var Lang $lang */
         foreach ($langs as $lang) {
@@ -57,13 +63,32 @@ class MetaHook extends BaseHook
                 $hreflang = strtolower(str_replace('_', '-', $lang->getLocale()));
             }
 
-            if ($lang->getByDefault()) {
-                $hookRender->add('<link rel="alternate" hreflang="x-default" href="' . $event->getUrl() . '" />');
-            }
-
             if (!empty($event->getUrl())) {
-                $hookRender->add('<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />');
+                if ($lang->getByDefault()) {
+                    $defaultHrefLang = '<link rel="alternate" hreflang="x-default" href="' . $event->getUrl() . '" />';
+                }
+
+                if ($lang->getLocale() === $currentLocale) {
+                    $currentHrefLang = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />';
+                } else {
+                    $metas[] = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />';
+                }
             }
+        }
+
+        // current language
+        if (null !== $currentHrefLang) {
+            $hookRender->add($currentHrefLang);
+        }
+
+        // other languages
+        foreach ($metas as $meta) {
+            $hookRender->add($meta);
+        }
+
+        // default language
+        if (null !== $defaultHrefLang) {
+            $hookRender->add($defaultHrefLang);
         }
     }
 }
