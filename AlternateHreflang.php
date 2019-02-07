@@ -23,7 +23,22 @@ class AlternateHreflang extends BaseModule
     const CONFIG_KEY_HREFLANG_FORMAT = "hreflangFormat";
     const CONFIG_HREFLANG_FORMAT_DEFAULT_VALUE = 0; // 0 for xx-xx or 1 for xx
 
+    /**
+     * @param ConnectionInterface $con
+     */
+    public function postActivation(ConnectionInterface $con = null)
+    {
+        $this->checkConfigurationsValues();
+    }
+
     public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
+    {
+        parent::update($currentVersion, $newVersion, $con);
+
+        $this->checkConfigurationsValues();
+    }
+
+    protected function checkConfigurationsValues()
     {
         if (null === self::getConfigValue(self::CONFIG_KEY_HREFLANG_FORMAT)) {
             self::setConfigValue(
