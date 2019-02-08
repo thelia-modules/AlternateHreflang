@@ -47,7 +47,7 @@ class AlternateHreflangListener implements EventSubscriberInterface
 
                     if (preg_match('/lang=[a-zA-Z_]{5}/', $uri)) {
                         $uri = preg_replace('/lang=[a-zA-Z_]{5}/', 'lang=' . $event->getLang()->getLocale(), $uri);
-                    } elseif (strpos('?', $uri)) {
+                    } elseif (\strpos('?', $uri)) {
                         $uri .= '&lang=' . $event->getLang()->getLocale();
                     } else {
                         $uri .= '?lang=' . $event->getLang()->getLocale();
@@ -60,11 +60,20 @@ class AlternateHreflangListener implements EventSubscriberInterface
 
         if ($multiDomainActivated) {
             $baseUrl = $event->getLang()->getUrl();
+
+            $uri = trim($uri, '/');
+
+            // remove lang for home page
+            if (preg_match('/^lang=[a-zA-Z_]{5}$/', $uri)) {
+                $uri = '';
+            }
         } else {
             $baseUrl = ConfigQuery::getConfiguredShopUrl();
+
+            $uri = trim($uri, '/');
         }
 
-        $url = trim($baseUrl, '/') . '/' . trim($uri, '/');
+        $url = trim($baseUrl, '/') . '/' . $uri;
 
         $event->setUrl($url);
     }
