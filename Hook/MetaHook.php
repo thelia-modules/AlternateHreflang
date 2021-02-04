@@ -41,6 +41,8 @@ class MetaHook extends BaseHook
 
         $currentLocale = $request->getSession()->getLang()->getLocale();
 
+        $host = $request->server->get('REQUEST_SCHEME') . '://' . $request->server->get('HTTP_HOST');
+
         $langs = LangQuery::create()
             ->filterByVisible(true)
             ->find();
@@ -65,13 +67,13 @@ class MetaHook extends BaseHook
 
             if (!empty($event->getUrl())) {
                 if ($lang->getByDefault()) {
-                    $defaultHrefLang = '<link rel="alternate" hreflang="x-default" href="' . $event->getUrl() . '" />';
+                    $defaultHrefLang = '<link rel="alternate" hreflang="x-default" href="' . $host  . $event->getUrl() . '" />';
                 }
 
                 if ($lang->getLocale() === $currentLocale) {
-                    $currentHrefLang = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />';
+                    $currentHrefLang = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $host  . $event->getUrl() . '" />';
                 } else {
-                    $metas[] = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />';
+                    $metas[] = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $host  . $event->getUrl() . '" />';
                 }
             }
         }
