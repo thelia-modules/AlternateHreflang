@@ -69,6 +69,9 @@ class AlternateHreflangListener implements EventSubscriberInterface
             }
         } else {
             $baseUrl = ConfigQuery::getConfiguredShopUrl();
+            if(empty($baseUrl)) {
+                $baseUrl = $event->getRequest()->getSchemeAndHttpHost();
+            }
 
             $uri = trim($uri, '/');
         }
