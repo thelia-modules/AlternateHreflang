@@ -4,11 +4,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
 
-    <services>
+    <!--<services>
         <service id="alternatehreflang.listener" class="AlternateHreflang\Listener\AlternateHreflangListener">
             <tag name="kernel.event_subscriber"/>
         </service>
-    </services>
+    </services>-->
 
     <hooks>
         <hook id="alternatehreflang.meta.hook" class="AlternateHreflang\Hook\MetaHook">

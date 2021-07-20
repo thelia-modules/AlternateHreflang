@@ -54,7 +54,7 @@ class MetaHook extends BaseHook
         foreach ($langs as $lang) {
             $event = new AlternateHreflangEvent($lang, $request);
 
-            $this->eventDispatcher->dispatch(AlternateHreflangEvent::BASE_EVENT_NAME, $event);
+            $this->eventDispatcher->dispatch($event, AlternateHreflangEvent::BASE_EVENT_NAME);
 
             $hreflangFormat = AlternateHreflang::getConfigValue(AlternateHreflang::CONFIG_KEY_HREFLANG_FORMAT);
             if (0 === (int) $hreflangFormat) {
