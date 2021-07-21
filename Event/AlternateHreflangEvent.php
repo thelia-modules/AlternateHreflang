@@ -2,8 +2,8 @@
 
 namespace AlternateHreflang\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\Event;
 use Thelia\Model\Lang;
 
 class AlternateHreflangEvent extends Event
