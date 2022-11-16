@@ -4,7 +4,6 @@ namespace AlternateHreflang\Hook;
 
 use AlternateHreflang\AlternateHreflang;
 use AlternateHreflang\Event\AlternateHreflangEvent;
-use Propel\Runtime\ActiveQuery\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Hook\HookRenderEvent;
@@ -29,6 +28,8 @@ class MetaHook extends BaseHook
     {
         $this->requestStack = $requestStack;
         $this->eventDispatcher = $eventDispatcher;
+
+        parent::__construct();
     }
 
     /**
@@ -65,13 +66,13 @@ class MetaHook extends BaseHook
 
             if (!empty($event->getUrl())) {
                 if ($lang->getByDefault()) {
-                    $defaultHrefLang = '<link rel="alternate" hreflang="x-default" href="' . $event->getUrl() . '" />';
+                    $defaultHrefLang = '<link rel="alternate" hreflang="x-default" href="' . $event->getUrl() . '">';
                 }
 
                 if ($lang->getLocale() === $currentLocale) {
-                    $currentHrefLang = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />';
+                    $currentHrefLang = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '">';
                 } else {
-                    $metas[] = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '" />';
+                    $metas[] = '<link rel="alternate" hreflang="' . $hreflang . '" href="' . $event->getUrl() . '">';
                 }
             }
         }
