@@ -47,7 +47,7 @@ class AlternateHreflangListener implements EventSubscriberInterface
 
                     if (preg_match('/lang=[a-zA-Z_]{5}/', $uri)) {
                         $uri = preg_replace('/lang=[a-zA-Z_]{5}/', 'lang=' . $event->getLang()->getLocale(), $uri);
-                    } elseif (\strpos('?', $uri)) {
+                    } elseif (\strpos($uri, '?')) {
                         $uri .= '&lang=' . $event->getLang()->getLocale();
                     } else {
                         $uri .= '?lang=' . $event->getLang()->getLocale();
